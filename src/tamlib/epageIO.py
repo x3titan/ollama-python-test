@@ -78,7 +78,7 @@ class EPageIO:
         if not base_url.startswith(("http://", "https://")):
             base_url = "https://" + base_url
 
-        self.base_url = base_url.rstrip("/") + "/"
+        self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.encoding = encoding
         self.verify_ssl = verify_ssl
@@ -116,66 +116,35 @@ class EPageIO:
 
         return url
 
-    def post(
-        self,
-        page_name: str,
-        taskset_name: str,
-        post_data: str,
-        *,
-        headers: dict[str, str] | None = None,
-        timeout: float | None = None,
-    ) -> str:
-        """
-        向EPage服务器发送字符串，并返回服务器响应字符串。
+    def post(self,
+         page_name: str,
+         taskset_name: str,
+         post_data: str
+    ) -> EIO | None:
+        if not self.base_url:
+            raise ValueError("base_url不能为空")
 
-        post_data会作为原始HTTP请求正文发送。
-        """
-
-        url = self.build_url(page_name, taskset_name)
-
-        request_timeout = (
-            self.timeout
-            if timeout is None
-            else timeout
-        )
+        url = f"{self.base_url}{page_name}?_T_={taskset_name}"
 
         try:
-            response = self.session.post(
+            response = requests.post(
                 url,
-                params={
-                    "_T_": taskset_name,
-                },
                 data=post_data,
-                headers=headers,
-                timeout=request_timeout,
-                verify=self.verify_ssl,
+                timeout=self.timeout
             )
 
-            response.encoding = self.encoding
+            response.raise_for_status()
 
-            if not response.ok:
-                raise EPageHTTPError(
-                    status_code=response.status_code,
-                    url=response.url,
-                    response_text=response.text,
-                )
+            response.encoding = "utf-8"
 
-            return response.text
+            eio = EIO()
+            eio.buffi = response.text
 
-        except requests.exceptions.Timeout as exc:
-            raise EPageTimeoutError(
-                f"EPage请求超时：{url}"
-            ) from exc
+            return eio
 
-        except requests.exceptions.ConnectionError as exc:
-            raise EPageConnectionError(
-                f"无法连接EPage服务器：{url}"
-            ) from exc
-
-        except requests.exceptions.RequestException as exc:
-            raise EPageIOError(
-                f"EPage请求发生错误：{exc}"
-            ) from exc
+        except Exception as e:
+            print(e)
+            return None
 
     def execute(
         self,

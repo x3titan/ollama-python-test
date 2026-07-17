@@ -1,18 +1,9 @@
-from .eio import EDataSet, EIO
-from .epage_io import (
-    EPageConnectionError,
-    EPageHTTPError,
-    EPageIO,
-    EPageIOError,
-    EPageTimeoutError,
-)
+from .eio import EDataSet
+from .eio import EIO
+from .epageIO import EPageIO
 
 __all__ = [
     "EIO",
     "EDataSet",
     "EPageIO",
-    "EPageIOError",
-    "EPageConnectionError",
-    "EPageTimeoutError",
-    "EPageHTTPError",
 ]

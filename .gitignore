@@ -1,0 +1,29 @@
+# Virtual Environment
+.venv/
+venv/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+
+# Build
+build/
+dist/
+
+# setuptools
+*.egg-info/
+
+# Test Cache
+.pytest_cache/
+.mypy_cache/
+
+# VS Code
+.vscode/
+
+# Environment
+.env
+.env.*
+
+# Windows
+Thumbs.db
+Desktop.ini

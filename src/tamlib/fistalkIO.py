@@ -1,5 +1,8 @@
 import time
+from tokenize import String
 from typing import Any
+from .epageIO import EDataSet, EIO, EPageIO
+from types import SimpleNamespace
 
 
 class ContentInfo:
@@ -8,7 +11,7 @@ class ContentInfo:
 
     依赖：
         g5.UserInfo
-        ds.getData(column_index, row_index)
+        ds.get_data(column_index, row_index)
         ds.setData(column_index, row_index, value)
     """
 
@@ -45,7 +48,7 @@ class ContentInfo:
 
         self.photos: list[str] = []
 
-        self.exUserInfo = g5.UserInfo()
+        self.exUserInfo = UserInfo()
         self.exUplinkType = ""
         self.exContentId = "0"
         self.exIsForward = False
@@ -105,7 +108,7 @@ class ContentInfo:
         self.seconds = self._to_int(self.seconds)
         self.startTime = int(time.time()) - self.seconds
 
-    def loadFromDataset(self, ds: Any, x: int, idx: int) -> None:
+    def loadFromDataset(self, ds: EDataSet, x: int, idx: int) -> None:
         """
         从 Dataset 的第 idx 行开始读取 ContentInfo 数据。
 
@@ -119,83 +122,83 @@ class ContentInfo:
         """
         p = x
 
-        self.id = ds.getData(p, idx)
+        self.id = ds.get_data(p, idx)
         p += 1
 
-        self.seconds = ds.getData(p, idx)
+        self.seconds = ds.get_data(p, idx)
         p += 1
 
-        self.status = ds.getData(p, idx)
+        self.status = ds.get_data(p, idx)
         p += 1
 
-        self.uplinkType = ds.getData(p, idx)
+        self.uplinkType = ds.get_data(p, idx)
         p += 1
 
-        self.uplinkId = ds.getData(p, idx)
+        self.uplinkId = ds.get_data(p, idx)
         p += 1
 
-        self.content = ds.getData(p, idx)
+        self.content = ds.get_data(p, idx)
         p += 1
 
-        self.longContent = ds.getData(p, idx) == "T"
+        self.longContent = ds.get_data(p, idx) == "T"
         p += 1
 
-        self.photo1 = ds.getData(p, idx)
+        self.photo1 = ds.get_data(p, idx)
         p += 1
 
-        self.photo2 = ds.getData(p, idx)
+        self.photo2 = ds.get_data(p, idx)
         p += 1
 
-        self.photo3 = ds.getData(p, idx)
+        self.photo3 = ds.get_data(p, idx)
         p += 1
 
-        self.photo4 = ds.getData(p, idx)
+        self.photo4 = ds.get_data(p, idx)
         p += 1
 
-        self.clickCount = ds.getData(p, idx)
+        self.clickCount = ds.get_data(p, idx)
         p += 1
 
-        self.reCount = ds.getData(p, idx)
+        self.reCount = ds.get_data(p, idx)
         p += 1
 
-        self.fwCount = ds.getData(p, idx)
+        self.fwCount = ds.get_data(p, idx)
         p += 1
 
-        self.likeCount = ds.getData(p, idx)
+        self.likeCount = ds.get_data(p, idx)
         p += 1
 
-        self.unlikeCount = ds.getData(p, idx)
+        self.unlikeCount = ds.get_data(p, idx)
         p += 1
 
-        self.isForward = ds.getData(p, idx) == "1"
+        self.isForward = ds.get_data(p, idx) == "1"
         p += 1
 
-        self.isLike = ds.getData(p, idx) == "1"
+        self.isLike = ds.get_data(p, idx) == "1"
         p += 1
 
-        self.isUnlike = ds.getData(p, idx) == "1"
+        self.isUnlike = ds.get_data(p, idx) == "1"
         p += 1
 
-        self.forceTopSn = ds.getData(p, idx)
+        self.forceTopSn = ds.get_data(p, idx)
 
         self.init()
 
-    def loadExFromDataset(self, ds: Any, x: int, idx: int) -> None:
+    def loadExFromDataset(self, ds: EDataSet, x: int, idx: int) -> None:
         """
         从 Dataset 中读取附加信息。
         """
-        self.exUserInfo = g5.UserInfo()
+        self.exUserInfo = UserInfo()
         self.exUserInfo.loadFromDataset(ds, x, idx)
 
         x += self.exUserInfo.size
 
-        self.exUplinkType = ds.getData(x + 0, idx)
-        self.exContentId = ds.getData(x + 1, idx)
-        self.exIsForward = ds.getData(x + 2, idx) == "1"
-        self.exIsLike = ds.getData(x + 3, idx) == "1"
-        self.exIsUnlike = ds.getData(x + 4, idx) == "1"
+        self.exUplinkType = ds.get_data(x + 0, idx)
+        self.exContentId = ds.get_data(x + 1, idx)
+        self.exIsForward = ds.get_data(x + 2, idx) == "1"
+        self.exIsLike = ds.get_data(x + 3, idx) == "1"
+        self.exIsUnlike = ds.get_data(x + 4, idx) == "1"
 
-    def setDataset(self, ds: Any, x: int, idx: int) -> None:
+    def setDataset(self, ds: EDataSet, x: int, idx: int) -> None:
         """
         将当前对象写入 Dataset 的第 idx 行。
 
@@ -321,3 +324,227 @@ class ContentInfo:
         result.startTime = self.startTime
 
         return result
+
+
+class UserInfo:
+    """
+    对应 JavaScript 中的 g5.UserInfo。
+
+    Dataset 字段数量：
+        19
+    """
+
+    size: int = 19
+
+    def __init__(self) -> None:
+        self.id: str = "0"
+        self.status: str = ""
+
+        self.regDatetime: Any = ""
+        self.lastAccessTime: Any = ""
+
+        self.userName: str = ""
+        self.mobile: str = ""
+        self.nickName: str = ""
+        self.note: str = ""
+
+        self.photo: str = ""
+        self.titleBg: str = ""
+        self.homePage: str = ""
+
+        self.followCount: Any = 0
+        self.fansCount: Any = 0
+        self.postCount: Any = 0
+
+        self.follow: str = "0"
+        self.block1: str = "0"
+        self.block2: str = "0"
+
+        self.email: str = ""
+
+        self.isFollow: bool = False
+        self.isBlock1: bool = False
+        self.isBlock2: bool = False
+        self.isHide: bool = False
+
+    def loadFromDataset(
+        self,
+        ds: EDataSet,
+        x: int,
+        idx: int,
+    ) -> None:
+        """
+        从 EDataSet 的指定行读取用户信息。
+
+        参数：
+            ds:
+                数据集。
+            x:
+                起始列索引。
+            idx:
+                行索引。
+        """
+        self.id = ds.get_data(x + 0, idx)
+        self.status = ds.get_data(x + 1, idx)
+
+        self.regDatetime = self.getUtcTime(
+            ds.get_data(x + 2, idx),
+            True,
+        )
+
+        self.lastAccessTime = ds.get_data(x + 3, idx)
+        self.userName = ds.get_data(x + 4, idx)
+        self.mobile = ds.get_data(x + 5, idx)
+        self.nickName = ds.get_data(x + 6, idx)
+        self.note = ds.get_data(x + 7, idx)
+        self.photo = ds.get_data(x + 8, idx)
+        self.titleBg = ds.get_data(x + 9, idx)
+        self.homePage = ds.get_data(x + 10, idx)
+        self.followCount = ds.get_data(x + 11, idx)
+        self.fansCount = ds.get_data(x + 12, idx)
+        self.postCount = ds.get_data(x + 13, idx)
+        self.follow = ds.get_data(x + 14, idx)
+        self.block1 = ds.get_data(x + 15, idx)
+        self.block2 = ds.get_data(x + 16, idx)
+        self.email = ds.get_data(x + 17, idx)
+
+        self.isFollow = self.follow == "1"
+        self.isBlock1 = self.block1 == "1"
+        self.isBlock2 = self.block2 == "1"
+        self.isHide = ds.get_data(x + 18, idx) == "1"
+
+    def setDataset(
+        self,
+        ds: EDataSet,
+        x: int,
+        idx: int,
+    ) -> None:
+        """
+        将当前用户信息写入 EDataSet。
+        """
+        ds.setData(x + 0, idx, self.id)
+        ds.setData(x + 1, idx, self.status)
+        ds.setData(x + 2, idx, self.regDatetime)
+        ds.setData(x + 3, idx, self.lastAccessTime)
+        ds.setData(x + 4, idx, self.userName)
+        ds.setData(x + 5, idx, self.mobile)
+        ds.setData(x + 6, idx, self.nickName)
+        ds.setData(x + 7, idx, self.note)
+        ds.setData(x + 8, idx, self.photo)
+        ds.setData(x + 9, idx, self.titleBg)
+        ds.setData(x + 10, idx, self.homePage)
+        ds.setData(x + 11, idx, self.followCount)
+        ds.setData(x + 12, idx, self.fansCount)
+        ds.setData(x + 13, idx, self.postCount)
+        ds.setData(x + 14, idx, self.follow)
+        ds.setData(x + 15, idx, self.block1)
+        ds.setData(x + 16, idx, self.block2)
+        ds.setData(x + 17, idx, self.email)
+        ds.setData(x + 18, idx, "1" if self.isHide else "0")
+
+    def clone(self) -> "UserInfo":
+        """
+        创建当前 UserInfo 的副本。
+
+        当前字段均为字符串、数字、布尔值等简单类型，
+        因此浅复制即可。
+        """
+        return copy(self)
+
+    @staticmethod
+    def getUtcTime(value: Any, local_time: bool = True) -> Any:
+        """
+        对应 JavaScript 中的：
+
+            g5.getUtcTime(value, true)
+
+        目前先原样返回。
+
+        等你把原 JavaScript 的 getUtcTime() 函数提供出来后，
+        再将这里改为准确的时间转换逻辑。
+        """
+        return value
+
+
+class TwitterDiv:
+    def __init__(self):
+        self.v_content = ContentInfo()
+        self.v_reContent = ContentInfo()
+        self.v_userInfo = UserInfo()
+        self.v_reUserInfo = UserInfo()
+
+
+class FistalkTaskset:
+    URL = "https://fistalk.com"
+
+    @staticmethod
+    def loadTwitterRecord(
+        twitterDiv: TwitterDiv,
+        dataset: EDataSet,
+        index: int,
+    ) -> None:
+        """
+        从 dataset 的指定记录中读取一条 Twitter 内容数据，
+        并将结果保存到 panel 对象。
+
+        对应 JavaScript：
+            loadTwitterRecord(panel, dataset, index)
+        """
+        twitterDiv.v_content = ContentInfo()
+        twitterDiv.v_reContent = ContentInfo()
+        twitterDiv.v_userInfo = UserInfo()
+        twitterDiv.v_reUserInfo = UserInfo()
+
+        dx = 0
+
+        twitterDiv.v_content.loadFromDataset(dataset, dx, index)
+        dx += twitterDiv.v_content.size
+
+        twitterDiv.v_reContent.loadFromDataset(dataset, dx, index)
+        dx += twitterDiv.v_reContent.size
+
+        twitterDiv.v_userInfo.loadFromDataset(dataset, dx, index)
+        dx += twitterDiv.v_userInfo.size
+
+        twitterDiv.v_reUserInfo.loadFromDataset(dataset, dx, index)
+        dx += twitterDiv.v_reUserInfo.size
+
+        twitterDiv.v_content.loadExFromDataset(dataset, dx, index)
+
+        if twitterDiv.v_content.uplinkType == "L":
+            temp = twitterDiv.v_content.uplinkType
+            twitterDiv.v_content.uplinkType = twitterDiv.v_content.exUplinkType
+            twitterDiv.v_content.exUplinkType = temp
+
+            temp = twitterDiv.v_userInfo
+            twitterDiv.v_userInfo = twitterDiv.v_content.exUserInfo
+            twitterDiv.v_content.exUserInfo = temp
+
+            twitterDiv.v_content.isForward = twitterDiv.v_content.exIsForward
+            twitterDiv.v_content.isLike = twitterDiv.v_content.exIsLike
+            twitterDiv.v_content.isUnlike = twitterDiv.v_content.exIsUnlike
+
+    @staticmethod
+    def pullTwitterRecord(token: str, contentId: str) -> TwitterDiv:
+        eio = EIO()
+        eio.append_string16(token)
+        eio.append_string16("T")
+        eio.append_string16(contentId)
+        eio.append_string16("0")
+        epageServer = EPageIO(FistalkTaskset.URL)
+        result = epageServer.post("/faith/pc/main", "showTopic", eio.buffo)
+
+        if result is None:
+            return None
+
+        if result.read_string8() != "T":
+            return None
+
+        ds = result.read_data_set()
+        contentLong = result.read_string16()
+        twitterDiv = TwitterDiv()
+        FistalkTaskset.loadTwitterRecord(twitterDiv, ds, 0)
+        if len(contentLong) > 0:
+            twitterDiv.v_content.content = contentLong
+
+        return twitterDiv

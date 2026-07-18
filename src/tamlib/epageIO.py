@@ -257,19 +257,14 @@ class EDataSet:
         row_index: int,
         value: Optional[str],
     ) -> None:
-        self._check_position(col_index, row_index)
+        if (col_index>=self.col_count): return;
+        if (row_index>=self.row_count): return;
         self._data[row_index][col_index] = "" if value is None else str(value)
 
     def get_data(self, col_index: int, row_index: int) -> str:
-        self._check_position(col_index, row_index)
+        if (col_index>=self.col_count): return "";
+        if (row_index>=self.row_count): return "";
         return self._data[row_index][col_index]
-
-    def _check_position(self, col_index: int, row_index: int) -> None:
-        if not 0 <= col_index < self.col_count:
-            raise IndexError(f"列索引超出范围：{col_index}")
-
-        if not 0 <= row_index < self.row_count:
-            raise IndexError(f"行索引超出范围：{row_index}")
 
     def to_rows(self) -> list[list[str]]:
         """返回按行排列的数据副本。"""

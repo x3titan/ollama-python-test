@@ -255,11 +255,11 @@ class EDataSet:
         self,
         col_index: int,
         row_index: int,
-        value: Optional[str],
+        value: str,
     ) -> None:
         if (col_index>=self.col_count): return;
         if (row_index>=self.row_count): return;
-        self._data[row_index][col_index] = "" if value is None else str(value)
+        self._data[row_index][col_index] = "" if value is None else value
 
     def get_data(self, col_index: int, row_index: int) -> str:
         if (col_index>=self.col_count): return "";
@@ -300,9 +300,9 @@ class EIO:
         """只清空输出缓存。"""
         self.buffo = ""
 
-    def set_input(self, data: Optional[str]) -> None:
+    def set_input(self, data: str) -> None:
         """设置输入缓存，并将读取指针归零。"""
-        self.buffi = "" if data is None else str(data)
+        self.buffi = "" if data is None else data
         self.sp = 0
 
     def get_output(self) -> str:
@@ -349,40 +349,40 @@ class EIO:
         self.append_word(int32 & 0xFFFF)
         self.append_word(int32 >> 16)
 
-    def append_string8(self, value: Optional[str]) -> None:
+    def append_string8(self, value: str) -> None:
         """
         写入最长 255 个字符的字符串。
 
         格式：
             1 字节长度 + 字符串正文
         """
-        text = "" if value is None else str(value)
+        text = "" if value is None else value
         text = text[:0xFF]
 
         self.append_byte(len(text))
         self.buffo += text
 
-    def append_string16(self, value: Optional[str]) -> None:
+    def append_string16(self, value: str) -> None:
         """
         写入最长 65535 个字符的字符串。
 
         格式：
             2 字节长度 + 字符串正文
         """
-        text = "" if value is None else str(value)
+        text = "" if value is None else value
         text = text[:0xFFFF]
 
         self.append_word(len(text))
         self.buffo += text
 
-    def append_string32(self, value: Optional[str]) -> None:
+    def append_string32(self, value: str) -> None:
         """
         写入一个使用 32 位长度字段的字符串。
 
         格式：
             4 字节长度 + 字符串正文
         """
-        text = "" if value is None else str(value)
+        text = "" if value is None else value
 
         if len(text) > 0xFFFFFFFF:
             raise ValueError("字符串长度超过 32 位无符号整数的表示范围")

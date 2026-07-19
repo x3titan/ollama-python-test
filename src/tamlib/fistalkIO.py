@@ -1,8 +1,10 @@
+from pickle import TRUE
 import time
 from tokenize import String
 from typing import Any
+from copy import copy
+
 from .epageIO import EDataSet, EIO, EPageIO
-from types import SimpleNamespace
 
 
 class ContentInfo:
@@ -548,3 +550,47 @@ class FistalkTaskset:
             twitterDiv.v_content.content = contentLong
 
         return twitterDiv
+
+    @staticmethod
+    def newTwitterV2(token: str, uplinkType: str, uplinkId: str) -> bool:
+        eio = EIO()
+        eio.append_string16(token)
+        eio.append_string16(uplinkType)
+        eio.append_string16(uplinkId)
+        eio.append_int32(0)  #photos
+        eio.append_byte(0) #voteList
+        eio.append_string8("0") #voteDuration
+
+        epageServer = EPageIO(FistalkTaskset.URL)
+        result = epageServer.post("/faith/pc/main", "newTwitterV2", eio.buffo)
+
+        if result is None:
+            return False
+
+        if result.read_string8() != "T":
+            return False
+
+        return True
+
+    @staticmethod
+    def downloadPhoto(photoStr: str, saveFile: str) -> bool:
+        import os
+        import requests
+
+        url = FistalkTaskset.URL + "/incoming/" + photoStr
+        try:
+            os.makedirs(os.path.dirname(saveFile), exist_ok=True)
+
+            with requests.get(url, stream=True, timeout=30) as response:
+                response.raise_for_status()
+
+                with open(saveFile, "wb") as f:
+                    for chunk in response.iter_content(8192):
+                        if chunk:
+                            f.write(chunk)
+
+            return True
+
+        except Exception as e:
+            print(e)
+            return False

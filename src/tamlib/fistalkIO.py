@@ -4,7 +4,7 @@ from tokenize import String
 from typing import Any
 from copy import copy
 
-from .epageIO import EDataSet, EIO, EPageIO
+from tamlib.epageIO import EDataSet, EIO, EPageIO
 
 
 class ContentInfo:

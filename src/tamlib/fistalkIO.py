@@ -14,7 +14,7 @@ class ContentInfo:
     依赖：
         g5.UserInfo
         ds.get_data(column_index, row_index)
-        ds.setData(column_index, row_index, value)
+        ds.set_data(column_index, row_index, value)
     """
 
     size = 20
@@ -214,64 +214,64 @@ class ContentInfo:
         """
         p = x
 
-        ds.setData(p, idx, self.id)
+        ds.set_data(p, idx, self.id)
         p += 1
 
-        ds.setData(p, idx, self.seconds)
+        ds.set_data(p, idx, str(self.seconds))
         p += 1
 
-        ds.setData(p, idx, self.status)
+        ds.set_data(p, idx, self.status)
         p += 1
 
-        ds.setData(p, idx, self.uplinkType)
+        ds.set_data(p, idx, self.uplinkType)
         p += 1
 
-        ds.setData(p, idx, self.uplinkId)
+        ds.set_data(p, idx, self.uplinkId)
         p += 1
 
-        ds.setData(p, idx, self.content)
+        ds.set_data(p, idx, self.content)
         p += 1
 
-        ds.setData(p, idx, "T" if self.longContent else "F")
+        ds.set_data(p, idx, "T" if self.longContent else "F")
         p += 1
 
-        ds.setData(p, idx, self.photo1)
+        ds.set_data(p, idx, self.photo1)
         p += 1
 
-        ds.setData(p, idx, self.photo2)
+        ds.set_data(p, idx, self.photo2)
         p += 1
 
-        ds.setData(p, idx, self.photo3)
+        ds.set_data(p, idx, self.photo3)
         p += 1
 
-        ds.setData(p, idx, self.photo4)
+        ds.set_data(p, idx, self.photo4)
         p += 1
 
-        ds.setData(p, idx, self.clickCount)
+        ds.set_data(p, idx, str(self.clickCount))
         p += 1
 
-        ds.setData(p, idx, self.reCount)
+        ds.set_data(p, idx, str(self.reCount))
         p += 1
 
-        ds.setData(p, idx, self.fwCount)
+        ds.set_data(p, idx, str(self.fwCount))
         p += 1
 
-        ds.setData(p, idx, self.likeCount)
+        ds.set_data(p, idx, str(self.likeCount))
         p += 1
 
-        ds.setData(p, idx, self.unlikeCount)
+        ds.set_data(p, idx, str(self.unlikeCount))
         p += 1
 
-        ds.setData(p, idx, "1" if self.isForward else "0")
+        ds.set_data(p, idx, "1" if self.isForward else "0")
         p += 1
 
-        ds.setData(p, idx, "1" if self.isLike else "0")
+        ds.set_data(p, idx, "1" if self.isLike else "0")
         p += 1
 
-        ds.setData(p, idx, "1" if self.isUnlike else "0")
+        ds.set_data(p, idx, "1" if self.isUnlike else "0")
         p += 1
 
-        ds.setData(p, idx, self.forceTopSn)
+        ds.set_data(p, idx, self.forceTopSn)
 
     def clone(self) -> "ContentInfo":
         """
@@ -424,25 +424,25 @@ class UserInfo:
         """
         将当前用户信息写入 EDataSet。
         """
-        ds.setData(x + 0, idx, self.id)
-        ds.setData(x + 1, idx, self.status)
-        ds.setData(x + 2, idx, self.regDatetime)
-        ds.setData(x + 3, idx, self.lastAccessTime)
-        ds.setData(x + 4, idx, self.userName)
-        ds.setData(x + 5, idx, self.mobile)
-        ds.setData(x + 6, idx, self.nickName)
-        ds.setData(x + 7, idx, self.note)
-        ds.setData(x + 8, idx, self.photo)
-        ds.setData(x + 9, idx, self.titleBg)
-        ds.setData(x + 10, idx, self.homePage)
-        ds.setData(x + 11, idx, self.followCount)
-        ds.setData(x + 12, idx, self.fansCount)
-        ds.setData(x + 13, idx, self.postCount)
-        ds.setData(x + 14, idx, self.follow)
-        ds.setData(x + 15, idx, self.block1)
-        ds.setData(x + 16, idx, self.block2)
-        ds.setData(x + 17, idx, self.email)
-        ds.setData(x + 18, idx, "1" if self.isHide else "0")
+        ds.set_data(x + 0, idx, self.id)
+        ds.set_data(x + 1, idx, self.status)
+        ds.set_data(x + 2, idx, self.regDatetime)
+        ds.set_data(x + 3, idx, self.lastAccessTime)
+        ds.set_data(x + 4, idx, self.userName)
+        ds.set_data(x + 5, idx, self.mobile)
+        ds.set_data(x + 6, idx, self.nickName)
+        ds.set_data(x + 7, idx, self.note)
+        ds.set_data(x + 8, idx, self.photo)
+        ds.set_data(x + 9, idx, self.titleBg)
+        ds.set_data(x + 10, idx, self.homePage)
+        ds.set_data(x + 11, idx, self.followCount)
+        ds.set_data(x + 12, idx, self.fansCount)
+        ds.set_data(x + 13, idx, self.postCount)
+        ds.set_data(x + 14, idx, self.follow)
+        ds.set_data(x + 15, idx, self.block1)
+        ds.set_data(x + 16, idx, self.block2)
+        ds.set_data(x + 17, idx, self.email)
+        ds.set_data(x + 18, idx, "1" if self.isHide else "0")
 
     def clone(self) -> "UserInfo":
         """
@@ -527,7 +527,7 @@ class FistalkTaskset:
             twitterDiv.v_content.isUnlike = twitterDiv.v_content.exIsUnlike
 
     @staticmethod
-    def pullTwitterRecord(token: str, contentId: str) -> TwitterDiv:
+    def pullTwitterRecord(token: str, contentId: str) -> TwitterDiv | None:
         eio = EIO()
         eio.append_string16(token)
         eio.append_string16("T")
@@ -552,14 +552,15 @@ class FistalkTaskset:
         return twitterDiv
 
     @staticmethod
-    def newTwitterV2(token: str, uplinkType: str, uplinkId: str) -> bool:
+    def newTwitterV2(token: str, contentText: str, uplinkType: str, uplinkId: str) -> bool:
         eio = EIO()
         eio.append_string16(token)
+        eio.append_string16(contentText)
         eio.append_string16(uplinkType)
         eio.append_string16(uplinkId)
-        eio.append_int32(0)  #photos
-        eio.append_byte(0) #voteList
-        eio.append_string8("0") #voteDuration
+        eio.append_int32(0)  # photos
+        eio.append_byte(0)  # voteList
+        eio.append_string8("0")  # voteDuration
 
         epageServer = EPageIO(FistalkTaskset.URL)
         result = epageServer.post("/faith/pc/main", "newTwitterV2", eio.buffo)

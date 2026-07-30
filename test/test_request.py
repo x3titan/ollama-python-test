@@ -56,9 +56,12 @@ else:
 """
 
 
-# record = fistalkIO.FistalkTaskset.pullTwitterRecord("952D2750-8AE0-4EC7-BDBF-81799058789E", "117354")
-# record = fistalkIO.FistalkTaskset.pullTwitterRecord("952D2750-8AE0-4EC7-BDBF-81799058789E", "118767")
-record = fistalkIO.FistalkTaskset.pullTwitterRecord("952D2750-8AE0-4EC7-BDBF-81799058789E", "118766")
+aiToken = "952D2750-8AE0-4EC7-BDBF-81799058789E"
+# contentId = "118766"
+# contentId = "117354"
+# contentId = "118767"
+contentId = "118546"
+record = fistalkIO.FistalkTaskset.pullTwitterRecord(aiToken, contentId)
 
 if record is None:
     exit(1)
@@ -70,7 +73,7 @@ photoContent = "无"
 if (len(record.v_content.photo1)>0):
     project_dir = Path.cwd()
     save_file = project_dir / "temp" / "contentPhoto1.jpg"
-    FistalkTaskset.downloadPhoto(record.v_content.photo1, save_file)
+    FistalkTaskset.downloadPhoto(record.v_content.photo1, str(save_file))
 
     print("========== OCR Start ==========")
     response: ChatResponse = chat(
@@ -112,12 +115,17 @@ prompt = f"""
 3. 不要解释。
 4. 不要输出分析过程。
 5. 只输出回复内容。
-对此贴发出提问
+7. 输出200字左右
+8. 表现的冷酷一点
 """
+#6. 对此贴发出提问
 
 response: ChatResponse = chat(model="qwen3:4b", messages=[{"role": "system", "content": "你是一位中文社交媒体用户。"}, {"role": "user", "content": prompt}])
 
-reply = response.message.content.strip()
+reply = (response.message.content or "").strip()
 
 print("========== AI回复 ==========")
 print(reply)
+
+r = FistalkTaskset.newTwitterV2(aiToken, reply, "R", contentId)
+print(f"========== 发帖 {'success' if r else 'fail'} ==========")

@@ -144,52 +144,6 @@ class EPageIO:
             print(e)
             return None
 
-    def execute(
-        self,
-        page_name: str,
-        taskset_name: str,
-        eio: EIO,
-        *,
-        headers: dict[str, str] | None = None,
-        timeout: float | None = None,
-        clear_output: bool = False,
-    ) -> EIO:
-        """
-        使用EIO对象与EPage服务器交互。
-
-        请求数据：
-            eio.buffo
-
-        返回数据：
-            写入 eio.buffi
-
-        请求完成后：
-            eio.sp = 0
-
-        参数 clear_output：
-            False：保留 eio.buffo
-            True：请求完成后清空 eio.buffo
-        """
-
-        if not isinstance(eio, EIO):
-            raise TypeError("eio必须是EIO对象")
-
-        response_text = self.post(
-            page_name=page_name,
-            taskset_name=taskset_name,
-            post_data=eio.buffo,
-            headers=headers,
-            timeout=timeout,
-        )
-
-        eio.buffi = response_text
-        eio.sp = 0
-
-        if clear_output:
-            eio.buffo = ""
-
-        return eio
-
     def close(self) -> None:
         """关闭底层HTTP会话。"""
         self.session.close()
@@ -349,45 +303,59 @@ class EIO:
         self.append_word(int32 & 0xFFFF)
         self.append_word(int32 >> 16)
 
-    def append_string8(self, value: str) -> None:
+    @staticmethod
+    def _truncate_utf16(value: str, max_length: int) -> tuple[str, int]:
+        result: list[str] = []
+        utf16_length = 0
+
+        for char in value:
+            char_length = 2 if ord(char) > 0xFFFF else 1
+
+            if utf16_length + char_length > max_length:
+                break
+
+            result.append(char)
+            utf16_length += char_length
+
+        return "".join(result), utf16_length
+
+    def append_string8(self, value: str | None) -> None:
         """
-        写入最长 255 个字符的字符串。
+        写入最长 255 个 UTF-16 code unit 的字符串。
 
         格式：
             1 字节长度 + 字符串正文
         """
         text = "" if value is None else value
-        text = text[:0xFF]
+        text, utf16_length = self._truncate_utf16(text, 0xFF)
 
-        self.append_byte(len(text))
+        self.append_byte(utf16_length)
         self.buffo += text
 
-    def append_string16(self, value: str) -> None:
+    def append_string16(self, value: str | None) -> None:
         """
-        写入最长 65535 个字符的字符串。
+        写入最长 65535 个 UTF-16 code unit 的字符串。
 
         格式：
             2 字节长度 + 字符串正文
         """
         text = "" if value is None else value
-        text = text[:0xFFFF]
+        text, utf16_length = self._truncate_utf16(text, 0xFFFF)
 
-        self.append_word(len(text))
+        self.append_word(utf16_length)
         self.buffo += text
 
-    def append_string32(self, value: str) -> None:
+    def append_string32(self, value: str | None) -> None:
         """
-        写入一个使用 32 位长度字段的字符串。
+        写入使用 32 位长度字段的字符串。
 
         格式：
             4 字节长度 + 字符串正文
         """
         text = "" if value is None else value
+        text, utf16_length = self._truncate_utf16(text, 0xFFFFFFFF)
 
-        if len(text) > 0xFFFFFFFF:
-            raise ValueError("字符串长度超过 32 位无符号整数的表示范围")
-
-        self.append_int32(len(text))
+        self.append_int32(utf16_length)
         self.buffo += text
 
     def read_byte(self) -> int:

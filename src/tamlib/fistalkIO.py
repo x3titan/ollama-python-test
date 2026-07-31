@@ -3,8 +3,54 @@ import time
 from tokenize import String
 from typing import Any
 from copy import copy
+import io
+import math
+import base64
+from pathlib import Path
+from PIL import Image
+from enum import Enum
 
 from tamlib.epageIO import EDataSet, EIO, EPageIO
+
+
+class FistalkPhoto:
+    COMPRESS_RATIO = 0.85
+
+    @classmethod
+    def resize(cls, filename: str, max_pixels: int) -> str:
+        """
+        完全模拟
+
+            sender.resize(image, maxSize)
+
+        返回：
+
+            data:image/jpeg;base64,...
+        """
+
+        img = Image.open(filename).convert("RGB")
+
+        img_w, img_h = img.size
+
+        if img_w * img_h > max_pixels:
+            ratio = img_w / img_h
+            y = math.sqrt(max_pixels / ratio)
+
+            new_w = int(ratio * y)
+            new_h = int(y)
+        else:
+            new_w = img_w
+            new_h = img_h
+
+        img = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+
+        buf = io.BytesIO()
+
+        img.save(buf, format="JPEG", quality=int(cls.COMPRESS_RATIO * 100), optimize=False)
+
+        data = base64.b64encode(buf.getvalue()).decode("ascii")
+
+        return "data:image/jpeg;base64," + data
 
 
 class ContentInfo:
@@ -595,3 +641,46 @@ class FistalkTaskset:
         except Exception as e:
             print(e)
             return False
+
+    # class UploadImageFunction(Enum):
+    #     UPLOAD = "ee_panel299"
+    #     SET_PHOTO = "ee_panel4"
+    #     SET_TITLE_BG = "ee_panel5"
+
+    @staticmethod
+    def uploadImage(token: str, imageFilename: str) -> str:
+        eio = EIO()
+        eio.append_string16(token)
+        eio.append_string16("ee_panel299")
+        eio.append_string32(FistalkPhoto.resize(imageFilename, 700*700))
+        epageServer = EPageIO(FistalkTaskset.URL)
+        result = epageServer.post("/faith/pc/main", "uploadImage", eio.buffo)
+
+        if result is None:
+            return ""
+
+        if result.read_string8() != "T":
+            return ""
+
+        return result.read_string16();
+
+
+    @staticmethod
+    def getTokenByUsername(adminUserName: str, adminPasswordMD5: str, targetUserName: str) -> str:
+        """
+        用后台管理员账号(adminUserName + 已MD5的密码)验证后,
+        获取(不存在则创建)指定用户名的登录token。
+        失败返回空字符串。
+        """
+        eio = EIO()
+        eio.append_string8(adminUserName)
+        eio.append_string8(adminPasswordMD5)
+        eio.append_string8(targetUserName)
+        epageServer = EPageIO(FistalkTaskset.URL)
+        result = epageServer.post("/faith/API", "getTokenByUsername", eio.buffo)
+
+        if result is None:
+            return ""
+        if result.read_string8() != "T":
+            return ""
+        return result.read_string8()

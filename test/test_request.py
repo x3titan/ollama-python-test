@@ -9,6 +9,12 @@ from tamlib.epageIO import EIO, EPageIO
 from tamlib.fistalkIO import FistalkTaskset, ContentInfo, UserInfo, TwitterDiv
 
 
+r = FistalkTaskset.getTokenByUsername("aaa", "96E79218965EB72C92A549DD5A330112", "AI_4C7997880ABC")
+print(r)
+
+# FistalkTaskset.uploadImage()
+exit(0)
+
 """
 eio = EIO()
 eio.append_string16("952D2750-8AE0-4EC7-BDBF-81799058789E")
@@ -118,7 +124,7 @@ prompt = f"""
 7. 输出200字左右
 8. 表现的冷酷一点
 """
-#6. 对此贴发出提问
+# 6. 对此贴发出提问
 
 response: ChatResponse = chat(model="qwen3:4b", messages=[{"role": "system", "content": "你是一位中文社交媒体用户。"}, {"role": "user", "content": prompt}])
 

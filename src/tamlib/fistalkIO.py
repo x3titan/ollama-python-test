@@ -642,16 +642,16 @@ class FistalkTaskset:
             print(e)
             return False
 
-    # class UploadImageFunction(Enum):
-    #     UPLOAD = "ee_panel299"
-    #     SET_PHOTO = "ee_panel4"
-    #     SET_TITLE_BG = "ee_panel5"
+    class UploadImageFunction(Enum):
+        UPLOAD = "ee_panel299"
+        SET_PHOTO = "ee_panel4"
+        SET_TITLE_BG = "ee_panel5"
 
     @staticmethod
-    def uploadImage(token: str, imageFilename: str) -> str:
+    def uploadImage(token: str, imageFilename: str, function: UploadImageFunction = UploadImageFunction.UPLOAD) -> str:
         eio = EIO()
         eio.append_string16(token)
-        eio.append_string16("ee_panel299")
+        eio.append_string16(function.value)
         eio.append_string32(FistalkPhoto.resize(imageFilename, 700*700))
         epageServer = EPageIO(FistalkTaskset.URL)
         result = epageServer.post("/faith/pc/main", "uploadImage", eio.buffo)

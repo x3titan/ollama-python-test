@@ -9,10 +9,101 @@ from tamlib.epageIO import EIO, EPageIO
 from tamlib.fistalkIO import FistalkTaskset, ContentInfo, UserInfo, TwitterDiv
 
 
-r = FistalkTaskset.getTokenByUsername("aaa", "96E79218965EB72C92A549DD5A330112", "AI_4C7997880ABC")
-print(r)
+# token = FistalkTaskset.getTokenByUsername("aaa", "96E79218965EB72C92A549DD5A330112", "yangcongbing")
+# if (len(token)<=0):
+#     print("can not get token")
+#     exit(1)
+# print ("get token: " + token)
 
-# FistalkTaskset.uploadImage()
+# newFilename = FistalkTaskset.uploadImage(
+#     token, "D:\\temp\\AIUserInfo\\f46c5971-fe0c-4845-8810-777f1ead5cfe.png", FistalkTaskset.UploadImageFunction.SET_PHOTO
+# )
+# print("userPhoto: " + newFilename)
+
+# newFilename = FistalkTaskset.uploadImage(
+#     token, "D:\\temp\\AIUserInfo\\f46c5971-fe0c-4845-8810-777f1ead5cfe.png", FistalkTaskset.UploadImageFunction.SET_TITLE_BG
+# )
+# print("titleBg: " + newFilename)
+
+
+# # FistalkTaskset.uploadImage()
+# exit(0)
+
+
+import os
+
+# 图片所在目录
+IMAGE_DIR = r"D:\temp\AIUserInfo"
+
+# 建议将密钥放进环境变量，避免直接写在代码中
+APP_NAME = "aaa"
+APP_SECRET = "96E79218965EB72C92A549DD5A330112"
+
+users = [
+    "xuegaobujia",
+    "mangguobuding",
+    "woshikongqi",
+    "calgaryyu",
+    "newyorkpan",
+    "perthli",
+    "aucklandhe",
+    "seoulzhou",
+    "parislin",
+    "berlinyao",
+    "dubaichen",
+    "bostonwu",
+    "kyotofeng"
+]
+
+success_count = 0
+failed_items = []
+
+for user_name in users:
+    print(f"\n开始处理账号：{user_name}")
+
+    try:
+        token = FistalkTaskset.getTokenByUsername(APP_NAME, APP_SECRET, user_name)
+
+        if not token:
+            raise RuntimeError("无法获取 token")
+
+        avatar_path = os.path.join(IMAGE_DIR, f"{user_name}_avatar.png")
+
+        header_path = os.path.join(IMAGE_DIR, f"{user_name}_header.png")
+
+        if not os.path.isfile(avatar_path):
+            raise FileNotFoundError(f"头像文件不存在：{avatar_path}")
+
+        if not os.path.isfile(header_path):
+            raise FileNotFoundError(f"题头文件不存在：{header_path}")
+
+        # 上传头像
+        avatar_filename = FistalkTaskset.uploadImage(token, avatar_path, FistalkTaskset.UploadImageFunction.SET_PHOTO)
+
+        print(f"头像上传成功：{avatar_filename}")
+
+        # 上传题头背景
+        header_filename = FistalkTaskset.uploadImage(token, header_path, FistalkTaskset.UploadImageFunction.SET_TITLE_BG)
+
+        print(f"题头上传成功：{header_filename}")
+        success_count += 1
+
+    except Exception as error:
+        print(f"账号 {user_name} 上传失败：{error}")
+
+        failed_items.append({"userName": user_name, "error": str(error)})
+
+print("\n========== 上传结束 ==========")
+print(f"账号总数：{len(users)}")
+print(f"成功账号：{success_count}")
+print(f"失败账号：{len(failed_items)}")
+
+if failed_items:
+    print("\n失败明细：")
+
+    for item in failed_items:
+        print(f"- {item['userName']}：{item['error']}")
+
 exit(0)
 
 """

@@ -620,6 +620,59 @@ class FistalkTaskset:
         return True
 
     @staticmethod
+    def loginAdmin(adminUsername: str, adminPassword: str) -> str:
+        eio = EIO()
+        eio.append_string8(adminUsername)
+        eio.append_string8(adminPassword)
+
+        epageServer = EPageIO(FistalkTaskset.URL)
+        result = epageServer.post("/faith/API", "loginAdmin", eio.buffo)
+
+        if result is None:
+            return ""
+
+        if result.read_string8() != "T":
+            return ""
+
+        return result.read_string8()
+
+    @staticmethod
+    def getContentIdList(tokenAdmin: str, startIndex: int, length: int) -> EDataSet | None:
+        eio = EIO()
+        eio.append_string8(tokenAdmin)
+        eio.append_string8(str(startIndex))
+        eio.append_string8(str(length))
+
+        epageServer = EPageIO(FistalkTaskset.URL)
+        result = epageServer.post("/faith/API", "getContentIdList", eio.buffo)
+
+        if result is None:
+            return None
+
+        if result.read_string8() != "T":
+            return None
+
+        return result.read_data_set()
+
+    @staticmethod
+    def getAIUserList(tokenAdmin: str, startIndex: int, length: int) -> EDataSet | None:
+        eio = EIO()
+        eio.append_string8(tokenAdmin)
+        eio.append_string8(str(startIndex))
+        eio.append_string8(str(length))
+
+        epageServer = EPageIO(FistalkTaskset.URL)
+        result = epageServer.post("/faith/API", "getAIUserList", eio.buffo)
+
+        if result is None:
+            return None
+
+        if result.read_string8() != "T":
+            return None
+
+        return result.read_data_set()
+
+    @staticmethod
     def downloadPhoto(photoStr: str, saveFile: str) -> bool:
         import os
         import requests
@@ -663,7 +716,6 @@ class FistalkTaskset:
             return ""
 
         return result.read_string16();
-
 
     @staticmethod
     def getTokenByUsername(adminUserName: str, adminPasswordMD5: str, targetUserName: str) -> str:

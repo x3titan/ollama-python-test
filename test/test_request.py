@@ -5,7 +5,7 @@ from ollama import chat
 from ollama import ChatResponse
 
 from tamlib import fistalkIO
-from tamlib.epageIO import EIO, EPageIO
+from tamlib.epageIO import EIO, EDataSet, EPageIO
 from tamlib.fistalkIO import FistalkTaskset, ContentInfo, UserInfo, TwitterDiv
 
 
@@ -32,6 +32,24 @@ from tamlib.fistalkIO import FistalkTaskset, ContentInfo, UserInfo, TwitterDiv
 
 import os
 
+# tokenAdmin = FistalkTaskset.loginAdmin("argon2", "111111")
+tokenAdmin = "43EEA795-B912-499F-80EC-F214CEC136C2"
+contentIdList = FistalkTaskset.getContentIdList(tokenAdmin, 0, 10)
+if (contentIdList is None):
+    exit(1)
+for i in range(contentIdList.row_count):
+    print(contentIdList.get_data(0,i))
+
+aiUserList = FistalkTaskset.getAIUserList(tokenAdmin, 0, 10000)
+if aiUserList is None:
+    exit(1)
+for i in range(aiUserList.row_count):
+    print(aiUserList.get_data(1, i))
+
+
+exit(0)
+
+#####批量上传头像以及背景图
 # 图片所在目录
 IMAGE_DIR = r"D:\temp\AIUserInfo"
 

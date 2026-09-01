@@ -620,6 +620,24 @@ class FistalkTaskset:
         return True
 
     @staticmethod
+    def follow(token: str, userId: str) -> bool:
+        eio = EIO()
+        eio.append_string8(token)
+        eio.append_string8("T")
+        eio.append_string8(userId)
+
+        epageServer = EPageIO(FistalkTaskset.URL)
+        result = epageServer.post("/faith/API", "follow", eio.buffo)
+
+        if result is None:
+            return False
+
+        if result.read_string8() != "T":
+            return False
+
+        return True
+
+    @staticmethod
     def loginAdmin(adminUsername: str, adminPassword: str) -> str:
         eio = EIO()
         eio.append_string8(adminUsername)
@@ -638,6 +656,10 @@ class FistalkTaskset:
 
     @staticmethod
     def getContentIdList(tokenAdmin: str, startIndex: int, length: int) -> EDataSet | None:
+        """
+        Returns:
+            Dataset [contentId]
+        """
         eio = EIO()
         eio.append_string8(tokenAdmin)
         eio.append_string8(str(startIndex))
@@ -656,6 +678,10 @@ class FistalkTaskset:
 
     @staticmethod
     def getAIUserList(tokenAdmin: str, startIndex: int, length: int) -> EDataSet | None:
+        """
+        Returns:
+            Dataset [userId,userName,nickName,note,character]
+        """
         eio = EIO()
         eio.append_string8(tokenAdmin)
         eio.append_string8(str(startIndex))
@@ -718,15 +744,14 @@ class FistalkTaskset:
         return result.read_string16();
 
     @staticmethod
-    def getTokenByUsername(adminUserName: str, adminPasswordMD5: str, targetUserName: str) -> str:
+    def getTokenByUsername(tokenAdmin: str, targetUserName: str) -> str:
         """
         用后台管理员账号(adminUserName + 已MD5的密码)验证后,
         获取(不存在则创建)指定用户名的登录token。
         失败返回空字符串。
         """
         eio = EIO()
-        eio.append_string8(adminUserName)
-        eio.append_string8(adminPasswordMD5)
+        eio.append_string8(tokenAdmin)
         eio.append_string8(targetUserName)
         epageServer = EPageIO(FistalkTaskset.URL)
         result = epageServer.post("/faith/API", "getTokenByUsername", eio.buffo)

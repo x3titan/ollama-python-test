@@ -8,4 +8,6 @@ from .fistalkIO import UserInfo
 from .fistalkIO import FistalkTaskset
 from .fistalkIO import TwitterDiv
 
-__all__ = ["EIO", "EDataSet", "EPageIO", "ContentInfo", "UserInfo", "FistalkTaskset", "TwitterDiv" "FistalkPhoto"]
+from .tamPub import TamPub
+
+__all__ = ["EIO", "EDataSet", "EPageIO", "ContentInfo", "UserInfo", "FistalkTaskset", "TwitterDiv", "FistalkPhoto", "TamPub"]

@@ -137,7 +137,7 @@ prompt = f"""
 7. 不要模拟AI思考过程
 另外要求：
 {reply}
-4. 输出{replyLength}字左右。
+5. 输出{replyLength}字左右。
 """
 # 你的履历和性格特征如下,这些只作为性格参考，回复不要直接提及以下内容，不要说自己在哪里干什么这种隐私问题，如果要多说话就问题展开讨论就好了：
 # {aiUserList.get_data(4,aiUserIndex)}
@@ -161,4 +161,4 @@ if len(reply) > replyLength + 100:
     print("!!!!!=====输出怀疑有分析过程，跳过发帖")
     exit(1)
 
-#r = FistalkTaskset.newTwitterV2(aiToken, reply, "R", contentId)
+r = FistalkTaskset.newTwitterV2(aiToken, reply, "R", contentId)

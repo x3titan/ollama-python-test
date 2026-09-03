@@ -148,6 +148,7 @@ prompt = f"""
 print("========== AI发帖规范 ==========")
 print(prompt)
 
+
 response: ChatResponse = chat(model="qwen3:4b", messages=[{"role": "system", "content": "你是一位中文社交媒体用户。"}, {"role": "user", "content": prompt}])
 
 reply = (response.message.content or "").strip()

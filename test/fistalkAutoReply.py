@@ -14,7 +14,7 @@ from tamlib.tamPub import TamPub
 
 # tokenAdmin = FistalkTaskset.loginAdmin("argon2", "111111")
 tokenAdmin = "43EEA795-B912-499F-80EC-F214CEC136C2"
-contentIdList = FistalkTaskset.getContentIdList(tokenAdmin, 0, 10)
+contentIdList = FistalkTaskset.getContentIdList(tokenAdmin, 0, 5)
 if contentIdList is None:
     exit(1)
 # for i in range(contentIdList.row_count):
@@ -107,12 +107,12 @@ print(prompt)
 
 response: ChatResponse = chat(model="qwen3:4b", messages=[{"role": "system", "content": "你是一位中文社交媒体用户。"}, {"role": "user", "content": prompt}])
 
-reply = (response.message.content or "").strip()
+aiEmotion = (response.message.content or "").strip()
 print("========== AI回复策略 ==========")
-print(reply)
+print(aiEmotion)
 
 # 计算回复字数
-replyLength = len(record.v_content.content) + len(photoContent)
+replyLength = len(record.v_content.content) + len(str(photoContent))
 replyLength = max(15, replyLength)
 replyLength = min(400, replyLength)
 replyLength = TamPub.random_hyperbolic_int(10, replyLength, 100, 5, 4)
@@ -136,7 +136,7 @@ prompt = f"""
 6. 回答的最好有智慧和深度
 7. 不要模拟AI思考过程
 另外要求：
-{reply}
+{aiEmotion}
 5. 输出{replyLength}字左右。
 """
 # 你的履历和性格特征如下,这些只作为性格参考，回复不要直接提及以下内容，不要说自己在哪里干什么这种隐私问题，如果要多说话就问题展开讨论就好了：
@@ -151,14 +151,25 @@ print(prompt)
 
 response: ChatResponse = chat(model="qwen3:4b", messages=[{"role": "system", "content": "你是一位中文社交媒体用户。"}, {"role": "user", "content": prompt}])
 
-reply = (response.message.content or "").strip()
+aiReply = (response.message.content or "").strip()
 
 print("========== AI回复 ==========")
-print(reply)
+print(aiReply)
 
 FistalkTaskset.follow(aiToken, record.v_userInfo.id)
-if len(reply) > replyLength + 100:
+if len(aiReply) > replyLength + 100:
     print("!!!!!=====输出怀疑有分析过程，跳过发帖")
     exit(1)
 
-r = FistalkTaskset.newTwitterV2(aiToken, reply, "R", contentId)
+# r = FistalkTaskset.newTwitterV2(aiToken, aiReply, "R", contentId)
+
+FistalkTaskset.aiReply(
+    tokenAdmin,
+    contentId,
+    record.v_content.content,
+    str(photoContent),
+    f"{aiEmotion}\r\n5. 输出{replyLength}字左右。",
+    aiReply,
+    record.v_userInfo.id,
+    aiUserList.get_data(0, aiUserIndex),
+)

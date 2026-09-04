@@ -620,6 +620,26 @@ class FistalkTaskset:
         return True
 
     @staticmethod
+    def aiReply(tokenAdmin: str, contentId: str, contentText: str, photoText: str, aiEmotion: str, aiReply: str, userId: str, aiUserId: str) -> bool:
+        eio = EIO()
+        eio.append_string8(tokenAdmin)
+        eio.append_string8(contentId)
+        eio.append_string16(contentText)
+        eio.append_string16(photoText)
+        eio.append_string16(aiEmotion)
+        eio.append_string16(aiReply)
+        eio.append_string8(userId)
+        eio.append_string8(aiUserId)
+        epageServer = EPageIO(FistalkTaskset.URL)
+        result = epageServer.post("/faith/API", "aiReply", eio.buffo)
+
+        if result is None:
+            return False
+        if result.read_string8() != "T":
+            return False
+        return True
+
+    @staticmethod
     def follow(token: str, userId: str) -> bool:
         eio = EIO()
         eio.append_string8(token)
@@ -731,7 +751,7 @@ class FistalkTaskset:
         eio = EIO()
         eio.append_string16(token)
         eio.append_string16(function.value)
-        eio.append_string32(FistalkPhoto.resize(imageFilename, 700*700))
+        eio.append_string32(FistalkPhoto.resize(imageFilename, 700 * 700))
         epageServer = EPageIO(FistalkTaskset.URL)
         result = epageServer.post("/faith/pc/main", "uploadImage", eio.buffo)
 
@@ -741,7 +761,7 @@ class FistalkTaskset:
         if result.read_string8() != "T":
             return ""
 
-        return result.read_string16();
+        return result.read_string16()
 
     @staticmethod
     def getTokenByUsername(tokenAdmin: str, targetUserName: str) -> str:
